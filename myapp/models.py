@@ -1,5 +1,7 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from myapp.base_model import BaseModel
+from decimal import Decimal
 
 class Aluno(BaseModel):
     nome = models.CharField(max_length=100)
@@ -15,24 +17,67 @@ class Professor(BaseModel):
     email = models.EmailField(unique=True)
     formacao = models.CharField(max_length=100)
 
+    class Meta:
+        ordering = ['nome']
+
+    def __str__(self):
+        return self.nome
+
+class Materia(BaseModel):
+    nome = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ['nome']
+
     def __str__(self):
         return self.nome
 
 class Turma(BaseModel):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(null=True, blank=True)
-    professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name="turmas")
     alunos = models.ManyToManyField(Aluno, related_name="turmas")
+
+    
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.nome
+
+class TurmaMateria(BaseModel):
+    turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name="turma_materias")
+    materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
+    professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['turma', 'materia', 'professor'],
+                name='unique_turma_materia_professor',    
+            )
+        ]
+
+        ordering = ['turma__nome']
+
+    def __str__(self):
+        return f"{self.turma.nome} - {self.materia.nome} (Prof. {self.professor.nome})"
     
 class Avaliacao(BaseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name="avaliacoes")
-    turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name="avaliacoes")
-    nota = models.DecimalField(max_digits=5, decimal_places=2)
+    turma_materia = models.ForeignKey(TurmaMateria, on_delete=models.CASCADE, related_name="avaliacoes", null=True)
+    nota = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('10'))])
     data_avaliacao = models.DateField(null=True, blank=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['aluno', 'turma_materia'],
+                name = 'avaliacao_unica_por_aluno_turma'
+            )
+        ]
+
+        ordering = ['-data_avaliacao']
+
     def __str__(self):
-        return f"Avaliação de {self.aluno.nome} - {self.turma.nome}"
+        return f"Avaliação de {self.aluno.nome} - {self.turma_materia.materia.nome}"
 

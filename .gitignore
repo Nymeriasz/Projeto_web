@@ -1,12 +1,19 @@
-# Ignorar a virtual environment
+# Ambientes virtuais
 venv/
+.venv/
+env/
 
-# Ignorar banco de dados SQLite
-db.sqlite3
+# Arquivos do Python
+__pycache__/  
 
-# Ignorar arquivos compilados do Python
-__pycache__/
-*.pyc
+# Database
+*.sqlite3  
 
-# Logs
-*.log
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE
+.vscode/
+
+*log
