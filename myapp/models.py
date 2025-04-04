@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from myapp.base_model import BaseModel
+from myapp.base_model import *
 from decimal import Decimal
 
 class Aluno(BaseModel):
@@ -17,17 +17,11 @@ class Professor(BaseModel):
     email = models.EmailField(unique=True)
     formacao = models.CharField(max_length=100)
 
-    class Meta:
-        ordering = ['nome']
-
     def __str__(self):
         return self.nome
 
 class Materia(BaseModel):
     nome = models.CharField(max_length=100, unique=True)
-
-    class Meta:
-        ordering = ['nome']
 
     def __str__(self):
         return self.nome
@@ -36,10 +30,6 @@ class Turma(BaseModel):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(null=True, blank=True)
     alunos = models.ManyToManyField(Aluno, related_name="turmas")
-
-    
-    class Meta:
-        ordering = ['-created_at']
 
     def __str__(self):
         return self.nome
@@ -57,8 +47,6 @@ class TurmaMateria(BaseModel):
             )
         ]
 
-        ordering = ['turma__nome']
-
     def __str__(self):
         return f"{self.turma.nome} - {self.materia.nome} (Prof. {self.professor.nome})"
     
@@ -75,8 +63,6 @@ class Avaliacao(BaseModel):
                 name = 'avaliacao_unica_por_aluno_turma'
             )
         ]
-
-        ordering = ['-data_avaliacao']
 
     def __str__(self):
         return f"Avaliação de {self.aluno.nome} - {self.turma_materia.materia.nome}"

@@ -24,7 +24,7 @@ class MateriaViewSet(viewsets.ModelViewSet):
 class TurmaViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
-    queryset = Turma.objects.all()
+    queryset = Turma.objects.prefetch_related('alunos')
     serializer_class = TurmaSerializer
 
 class TurmaMateriaViewSet(viewsets.ModelViewSet):
@@ -36,5 +36,5 @@ class TurmaMateriaViewSet(viewsets.ModelViewSet):
 class AvaliacaoViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
-    queryset = Avaliacao.objects.all()
+    queryset = Avaliacao.objects.select_related('aluno', 'turma_materia').all()
     serializer_class = AvaliacaoSerializer

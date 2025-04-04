@@ -1,7 +1,7 @@
 # Ambientes virtuais
 venv/
 .venv/
-env/
+.env
 
 # Arquivos do Python
 __pycache__/  
@@ -15,5 +15,3 @@ Thumbs.db
 
 # Arquivos de IDE
 .vscode/
-
-*log
